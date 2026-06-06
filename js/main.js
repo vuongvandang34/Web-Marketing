@@ -11,7 +11,7 @@ function initNavbar() {
   const header = document.querySelector('header');
   const navToggle = document.querySelector('.nav-toggle');
   const navLinks = document.querySelector('.nav-links');
-  
+
   // Sticky scroll effects
   window.addEventListener('scroll', () => {
     if (window.scrollY > 20) {
@@ -20,7 +20,7 @@ function initNavbar() {
       header.classList.remove('scrolled');
     }
   });
-  
+
   // Trigger sticky immediately on load if already scrolled
   if (window.scrollY > 20) {
     header.classList.add('scrolled');
@@ -55,17 +55,17 @@ function initNavbar() {
 /* --- FAQ Accordion --- */
 function initFaq() {
   const faqQuestions = document.querySelectorAll('.faq-question');
-  
+
   faqQuestions.forEach(question => {
     question.addEventListener('click', () => {
       const currentItem = question.closest('.faq-item');
       const isActive = currentItem.classList.contains('active');
-      
+
       // Close all FAQ items
       document.querySelectorAll('.faq-item').forEach(item => {
         item.classList.remove('active');
       });
-      
+
       // Toggle active on clicked item
       if (!isActive) {
         currentItem.classList.add('active');
@@ -80,36 +80,36 @@ function initTestimonials() {
   const slides = document.querySelectorAll('.testimonial-slide');
   const prevBtn = document.querySelector('.slider-btn.prev');
   const nextBtn = document.querySelector('.slider-btn.next');
-  
+
   if (!container || slides.length === 0) return;
-  
+
   let currentIndex = 0;
   const slideCount = slides.length;
-  
+
   function updateSlider() {
     container.style.transform = `translateX(-${currentIndex * 100}%)`;
   }
-  
+
   if (nextBtn) {
     nextBtn.addEventListener('click', () => {
       currentIndex = (currentIndex + 1) % slideCount;
       updateSlider();
     });
   }
-  
+
   if (prevBtn) {
     prevBtn.addEventListener('click', () => {
       currentIndex = (currentIndex - 1 + slideCount) % slideCount;
       updateSlider();
     });
   }
-  
+
   // Auto-play every 6 seconds
   let autoPlay = setInterval(() => {
     currentIndex = (currentIndex + 1) % slideCount;
     updateSlider();
   }, 6000);
-  
+
   // Pause autoplay on interaction
   [prevBtn, nextBtn].forEach(btn => {
     if (btn) {
@@ -127,15 +127,15 @@ function initTestimonials() {
 /* --- Interactive Metric Before/After Toggles --- */
 function initMetricCompares() {
   const toggles = document.querySelectorAll('.compare-toggle');
-  
+
   toggles.forEach(toggle => {
     toggle.addEventListener('change', (e) => {
       const widget = toggle.closest('.compare-widget');
       if (!widget) return;
-      
+
       const beforeBox = widget.querySelector('.before-box');
       const afterBox = widget.querySelector('.after-box');
-      
+
       if (e.target.checked) {
         // Show after
         beforeBox.style.display = 'none';
@@ -150,17 +150,17 @@ function initMetricCompares() {
 }
 
 /* --- Audit Lead Form Handler --- */
-const WEB3FORMS_ACCESS_KEY = ""; // paste your free Web3Forms key here (from web3forms.com) to receive email alerts
+const WEB3FORMS_ACCESS_KEY = "b29df8fa-cd03-4ca5-a0f2-79d8318c3555"; // paste your free Web3Forms key here (from web3forms.com) to receive email alerts
 
 function initAuditForm() {
   const auditForm = document.getElementById('auditForm');
   const formCard = document.querySelector('.form-card');
-  
+
   if (!auditForm || !formCard) return;
-  
+
   auditForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    
+
     // Capture values
     const businessName = document.getElementById('businessName').value.trim();
     const mapsLink = document.getElementById('mapsLink').value.trim();
@@ -168,19 +168,19 @@ function initAuditForm() {
     const phone = document.getElementById('phone').value.trim();
     const categorySelect = document.getElementById('category');
     const category = categorySelect ? categorySelect.options[categorySelect.selectedIndex].text : '';
-    
+
     // Basic validations
     if (!businessName || !mapsLink || !email) {
       alert('Please fill out all required fields.');
       return;
     }
-    
+
     // Select problems checked
     const selectedProblems = [];
     document.querySelectorAll('input[name="problems"]:checked').forEach(cb => {
       selectedProblems.push(cb.parentNode.textContent.trim());
     });
-    
+
     // Visual processing state
     const submitBtn = auditForm.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
@@ -191,7 +191,7 @@ function initAuditForm() {
       </svg>
       Analyzing Map Profile...
     `;
-    
+
     // Add dynamic inline SVG styling style if spin element is created
     const styleSheet = document.createElement("style");
     styleSheet.innerText = `
@@ -206,7 +206,7 @@ function initAuditForm() {
       }
     `;
     document.head.appendChild(styleSheet);
-    
+
     // Prepare Web3Forms payload
     const formData = {
       subject: `New Google Maps Audit Request: ${businessName}`,
@@ -268,7 +268,7 @@ function initAuditForm() {
           <button class="btn btn-secondary" id="resetAuditForm" style="width:100%;">Request Another Audit</button>
         </div>
       `;
-      
+
       document.getElementById('resetAuditForm').addEventListener('click', () => {
         location.reload();
       });
@@ -277,7 +277,7 @@ function initAuditForm() {
     // If access key is set, submit to Web3Forms API
     if (WEB3FORMS_ACCESS_KEY) {
       formData.access_key = WEB3FORMS_ACCESS_KEY;
-      
+
       fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
@@ -286,23 +286,23 @@ function initAuditForm() {
         },
         body: JSON.stringify(formData)
       })
-      .then(async (response) => {
-        if (response.ok) {
-          renderSuccessCard();
-        } else {
-          const json = await response.json();
-          console.error(json);
-          alert('Submission error: ' + (json.message || response.statusText));
+        .then(async (response) => {
+          if (response.ok) {
+            renderSuccessCard();
+          } else {
+            const json = await response.json();
+            console.error(json);
+            alert('Submission error: ' + (json.message || response.statusText));
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+          }
+        })
+        .catch(error => {
+          console.error(error);
+          alert('Network error. Please try sending via WhatsApp instead.');
           submitBtn.disabled = false;
           submitBtn.innerHTML = originalBtnText;
-        }
-      })
-      .catch(error => {
-        console.error(error);
-        alert('Network error. Please try sending via WhatsApp instead.');
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalBtnText;
-      });
+        });
     } else {
       // Offline/Mock simulation if no API key is specified
       setTimeout(() => {
